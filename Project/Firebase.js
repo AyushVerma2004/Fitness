@@ -1,194 +1,163 @@
-// ----------------------------------------------------
-// FIREBASE IMPORTS
-// ----------------------------------------------------
+
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-app.js";
+
 import {
-  getAuth,
-  GoogleAuthProvider,
-  signInWithPopup,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-  signOut,
-  onAuthStateChanged
+  getAuth,
+  GoogleAuthProvider,
+  signInWithPopup,
+  createUserWithEmailAndPassword,
+  signInWithEmailAndPassword,
+  signOut,
+  onAuthStateChanged
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-auth.js";
+
 import {
-  getFirestore,
-  setDoc,
-  doc,
-  collection,
-  addDoc,
-  getDocs,
-  query
+  getFirestore,
+  setDoc,
+  doc,
+  collection,
+  addDoc,
+  getDocs
 } from "https://www.gstatic.com/firebasejs/11.10.0/firebase-firestore.js";
 
-// ----------------------------------------------------
-// FIREBASE CONFIG
-// ----------------------------------------------------
+// Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyAWCLISIOyr4nHjJ2URuqD84EWAyHXBgDM",
-  authDomain: "your-fitness-buddy-login.firebaseapp.com",
-  projectId: "your-fitness-buddy-login",
-  storageBucket: "your-fitness-buddy-login.firebasestorage.app",
-  messagingSenderId: "530314127734",
-  appId: "1:530314127734:web:09c1cae200b4b030d77257",
-  measurementId: "G-S5CNQJ1F77"
+  apiKey: "AIzaSyAWCLISIOyr4nHjJ2URuqD84EWAyHXBgDM",
+  authDomain: "your-fitness-buddy-login.firebaseapp.com",
+  projectId: "your-fitness-buddy-login",
+  storageBucket: "your-fitness-buddy-login.firebasestorage.app",
+  messagingSenderId: "530314127734",
+  appId: "1:530314127734:web:09c1cae200b4b030d77257",
+  measurementId: "G-S5CNQJ1F77"
 };
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app);
 const db = getFirestore(app);
 
-// Google Provider
 const provider = new GoogleAuthProvider();
-provider.setCustomParameters({ prompt: 'select_account' });
 
-// ----------------------------------------------------
 // SIGNUP
-// ----------------------------------------------------
-export async function signup(name, email, mobile, password) {
-  try {
-    if (!name || !email || !mobile || !password)
-      throw new Error("All fields are required");
+window.signup = async function () {
+  const name = document.getElementById("username").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const password = document.getElementById("password").value;
 
-    const userCred = await createUserWithEmailAndPassword(auth, email, password);
-    const user = userCred.user;
+  if (!name || !email || !mobile || !password) {
+    alert("Please fill all fields!");
+    return;
+  }
 
-    await setDoc(doc(db, "users", user.uid), {
-      name,
-      email,
-      mobile,
-      authType: "email",
-      createdAt: new Date()
-    });
+  try {
+    const result = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password
+    );
 
-    alert("Signup Successful!");
-    window.location.href = "login.html";
+    await setDoc(doc(db, "users", result.user.uid), {
+      name,
+      email,
+      mobile,
+      authType: "email",
+      createdAt: new Date()
+    });
 
-  } catch (error) {
-    console.error("Signup Error:", error);
+    alert("Account created successfully!");
+    window.location.href = "login.html";
 
-    if (error.code === "auth/email-already-in-use")
-      alert("This email is already registered!");
-    else if (error.code === "auth/invalid-email")
-      alert("Invalid email format.");
-    else if (error.code === "auth/weak-password")
-      alert("Password must be 6+ characters.");
-    else
-      alert(error.message);
-  }
-}
+  } catch (error) {
+    console.error("Signup error:", error);
+    alert("Signup failed: " + error.message);
+  }
+};
 
-// ----------------------------------------------------
 // LOGIN
-// ----------------------------------------------------
 window.login = async function (event) {
-  event?.preventDefault();
+  event?.preventDefault();
 
-  const email = document.getElementById("loginEmail")?.value.trim();
-  const password = document.getElementById("loginPassword")?.value.trim();
+  const email = document.getElementById("loginEmail").value.trim();
+  const password = document.getElementById("loginPassword").value;
 
-  if (!email || !password) return alert("Please fill all fields.");
+  try {
+    await signInWithEmailAndPassword(auth, email, password);
 
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Login Successful!");
-    window.location.href = "homepage.html";
-  } catch (error) {
-    console.error("Login Error:", error);
-    if (error.code === "auth/invalid-credential") {
-      alert("Login Failed: Invalid email or password.");
-    } else {
-      alert("Login Failed: " + error.message);
-    }
-  }
-}
-
-// ----------------------------------------------------
-// GOOGLE LOGIN (CORRECTED REDIRECT)
-// ----------------------------------------------------
-window.googleLogin = async function () {
-  const btn = document.getElementById('googleLoginBtn');
-  if (btn) {
-    btn.disabled = true;
-    btn.style.opacity = "0.6";
-  }
-
-  try {
-    const result = await signInWithPopup(auth, provider);
-    const user = result.user;
-
-    // Save or update user in Firestore
-    await setDoc(doc(db, "users", user.uid), {
-      name: user.displayName,
-      email: user.email,
-      photoURL: user.photoURL,
-      googleAuth: true,
-      lastLogin: new Date()
-    }, { merge: true });
-
-
-    // --- CORRECTION APPLIED HERE ---
-    // The previous onAuthStateChanged listener was removed.
-    // We now redirect directly as signInWithPopup guarantees the user is logged in.
-    
-    alert(`Welcome ${user.displayName}!`);
+    alert("Login successful!");
     window.location.href = "homepage.html";
-    
-  } catch (error) {
-    console.error("Google Login Error:", error);
-    // Check for common "closed popup" error and ignore it
-    if (error.code !== "auth/popup-closed-by-user") {
-        alert("Google login failed: " + error.message);
-    }
 
-    // Re-enable button if login fails
-    if (btn) {
-      btn.disabled = false;
-      btn.style.opacity = "1";
-    }
-  }
+  } catch (error) {
+    console.error("Login error:", error);
+    alert("Login failed: " + error.message);
+  }
 };
 
-// ----------------------------------------------------
+// GOOGLE LOGIN
+window.googleLogin = async function () {
+  try {
+    const result = await signInWithPopup(auth, provider);
+    const user = result.user;
+
+    await setDoc(doc(db, "users", user.uid), {
+      name: user.displayName,
+      email: user.email,
+      photoURL: user.photoURL,
+      googleAuth: true,
+      lastLogin: new Date()
+    }, { merge: true });
+
+    alert("Welcome " + user.displayName + "!");
+    window.location.href = "homepage.html";
+
+  } catch (error) {
+    console.error("Google login error:", error);
+    alert("Google login failed: " + error.message);
+  }
+};
+
 // LOGOUT
-// ----------------------------------------------------
 window.logout = async function () {
-  await signOut(auth);
-  alert("Logged out!");
-  window.location.href = "index.html";
+  try {
+    await signOut(auth);
+    window.location.href = "index.html";
+  } catch (error) {
+    console.error("Logout error:", error);
+    alert(error.message);
+  }
 };
 
-export async function logout() {
-  await signOut(auth);
-}
-
-// ----------------------------------------------------
 // AUTH OBSERVER
-// ----------------------------------------------------
 onAuthStateChanged(auth, user => {
-  if (user) console.log("Logged in:", user.email);
-  else console.log("Logged out");
+  console.log(user ? "Logged in: " + user.email : "Logged out");
 });
 
-// ----------------------------------------------------
 // FIRESTORE FUNCTIONS
-// ----------------------------------------------------
 export async function saveWorkout(uid, workout) {
-  const ref = await addDoc(collection(db, "users", uid, "workouts"), workout);
-  return ref.id;
+  const ref = await addDoc(
+    collection(db, "users", uid, "workouts"),
+    workout
+  );
+  return ref.id;
 }
 
 export async function saveGoal(uid, goal) {
-  const ref = await addDoc(collection(db, "users", uid, "goals"), goal);
-  return ref.id;
+  const ref = await addDoc(
+    collection(db, "users", uid, "goals"),
+    goal
+  );
+  return ref.id;
 }
 
 export async function getWorkouts(uid) {
-  const qSnap = await getDocs(query(collection(db, "users", uid, "workouts")));
-  return qSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snapshot = await getDocs(
+    collection(db, "users", uid, "workouts")
+  );
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 }
 
 export async function getGoals(uid) {
-  const qSnap = await getDocs(query(collection(db, "users", uid, "goals")));
-  return qSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+  const snapshot = await getDocs(
+    collection(db, "users", uid, "goals")
+  );
+  return snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 }

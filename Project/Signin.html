@@ -1,10 +1,14 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <title>Sign Up - Fitness Buddy</title>
-  <link rel="stylesheet" href="Sign.css">
+
+  <link rel="stylesheet" href="./Sign.css">
+
   <style>
     body {
       font-family: "Poppins", sans-serif;
@@ -35,7 +39,7 @@
       font-size: 1.8rem;
       margin-bottom: 8px;
       color: #4cc9ff;
-      text-shadow: 0 0 10px rgba(76, 201, 255, 0.4);
+      text-shadow: 0 0 10px rgba(76,201,255,0.4);
     }
 
     .subtitle {
@@ -104,30 +108,30 @@
     }
 
     .google-btn {
-  width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  font-size: 1rem;
-  font-weight: 600;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  cursor: pointer;
-  background: #00e676;
-  color: #000;
-  transition: 0.25s;
-}
+      width: 100%;
+      padding: 12px;
+      border-radius: 10px;
+      border: none;
+      font-size: 1rem;
+      font-weight: 600;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      background: #00e676;
+      color: #000;
+      transition: 0.25s;
+    }
 
-.google-btn img {
-  width: 20px;
-  margin-right: 10px;
-}
+    .google-btn img {
+      width: 20px;
+      margin-right: 10px;
+    }
 
-.google-btn:hover {
-  transform: scale(1.03);
-  box-shadow: 0 0 12px #00e676;
-}
+    .google-btn:hover {
+      transform: scale(1.03);
+      box-shadow: 0 0 12px #00e676;
+    }
 
     .footer-text a {
       color: #4cc9ff;
@@ -144,40 +148,97 @@
         padding: 20px;
       }
 
-      h1 { font-size: 1.5rem; }
+      h1 {
+        font-size: 1.5rem;
+      }
     }
   </style>
 </head>
+
 <body>
+
   <div class="auth-container">
     <div class="card">
-      <h1>Welcome to <span>Your Fitness Buddy</span></h1>
-      <p class="subtitle">Start your personalized fitness journey today</p>
 
-      <form id="signupForm" onsubmit="event.preventDefault(); signup();">
+      <h1>Welcome to <span>Your Fitness Buddy</span></h1>
+
+      <p class="subtitle">
+        Start your personalized fitness journey today
+      </p>
+
+      <!-- SIGNUP FORM -->
+      <form id="signupForm">
+
         <div class="input-group">
-          <input type="text" id="username" placeholder="Full Name" required>
-          <input type="email" id="email" placeholder="Email Address" required>
-          <input type="tel" id="mobile" placeholder="Mobile Number" required>
-          <input type="password" id="password" placeholder="Password" minlength="6" required>
-          
-          <button class="primary-btn" type="submit">Create Account</button>
+
+          <input
+            type="text"
+            id="username"
+            placeholder="Full Name"
+            autocomplete="name"
+            required
+          >
+
+          <input
+            type="email"
+            id="email"
+            placeholder="Email Address"
+            autocomplete="email"
+            required
+          >
+
+          <input
+            type="tel"
+            id="mobile"
+            placeholder="Mobile Number"
+            autocomplete="tel"
+            required
+          >
+
+          <input
+            type="password"
+            id="password"
+            placeholder="Password"
+            minlength="6"
+            autocomplete="new-password"
+            required
+          >
+
+          <button class="primary-btn" type="submit">
+            Create Account
+          </button>
+
         </div>
+
       </form>
 
-      <div class="divider"><span>OR</span></div>
+      <div class="divider">
+        <span>OR</span>
+      </div>
 
-      <button class="google-btn" type="button" onclick="googleLogin()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google logo">
+      <!-- GOOGLE SIGNUP -->
+      <button
+        class="google-btn"
+        type="button"
+        onclick="googleLogin()"
+      >
+        <img
+          src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg"
+          alt="Google"
+        >
         Continue with Google
       </button>
 
       <p class="footer-text">
-        Already have an account? <a href="login.html">Login here</a>
+        Already have an account?
+        <a href="./login.html">Login here</a>
       </p>
+
     </div>
   </div>
 
-  <script type="module" src="firebase.js"></script>
+  <!-- LOAD FIREBASE ONLY ONCE -->
+  <script type="module" src=".Firebase.js"></script>
+
 </body>
 </html>
